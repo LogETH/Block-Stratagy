@@ -19,6 +19,8 @@ contract GameLogic {
     mapping(uint => mapping(address => mapping(uint => uint))) LocationX;
     mapping(uint => mapping(address => mapping(uint => uint))) LocationY;
     mapping(uint => mapping(address => mapping(uint => bool))) Dead;
+    
+    mapping(uint => mapping(bool => address)) WhoIsInTheGame;
     mapping(uint => Map) GameMap;
     mapping(address => bool) ingame;
 
@@ -34,6 +36,8 @@ contract GameLogic {
         Pieces[GameIDNonce][msg.sender][2] = Piece2;
         Pieces[GameIDNonce][msg.sender][3] = Piece3;
         Pieces[GameIDNonce][msg.sender][4] = Piece4;
+
+        WhoIsInTheGame[GameIDNonce][true] = msg.sender;
 
         Invite[msg.sender][Opponent] = GameIDNonce;
         GameMap[GameIDNonce] = EnterMapAddress;
@@ -51,6 +55,8 @@ contract GameLogic {
         Pieces[GameID][msg.sender][3] = Piece3;
         Pieces[GameID][msg.sender][4] = Piece4;
 
+        WhoIsInTheGame[GameID][false] = msg.sender;
+
         ingame[msg.sender] = true;
         ingame[Opponent] = true;
     }
@@ -62,7 +68,7 @@ contract GameLogic {
         require (Pieces[GameID][msg.sender][1] == PieceID || Pieces[GameID][msg.sender][2] == PieceID || Pieces[GameID][msg.sender][3] == PieceID || Pieces[GameID][msg.sender][4] == PieceID, "That Piece is not currently being used in the game!");
         require (GameID < (GameIDNonce - 1), "That game doesn't even exist yet you idiot!");
         require (Dead[GameID][msg.sender][PieceID] = false, "You can't move a dead piece.");
-        require (OpponentsAddress)
+        require(msg.sender == WhoIsInTheGame[GameID][true] || msg.sender == WhoIsInTheGame[GameID][false]);
         
         (LocationX[GameID][msg.sender][PieceID], LocationY[GameID][msg.sender][PieceID]) = move.MovePiece(PieceID, MoveHowManySpacesX, MoveHowManySpacesY);
 
@@ -84,6 +90,14 @@ contract GameLogic {
         }
     }
 
+//// Dev notes: Using a funcation command in a nested mapping as a variable inside a nested mapping is fun
+
+    function Win(uint GameID) external {
+
+        require(Dead[GameID][this.getplayer(GameID, msg.sender)][Pieces[GameID][this.getplayer(GameID, msg.sender)][4]] == true);
+    }
+
+    
     
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -93,6 +107,23 @@ contract GameLogic {
     function hp(uint GameID, address Who, uint PieceID) external view returns (uint) {
 
         return CurrentHP[GameID][Who][PieceID];
+
+    }
+
+/// This function tells you who your opponent is, in case you forgot
+
+    function getplayer(uint GameID, address Player) external view returns (address){
+
+        require(Player == WhoIsInTheGame[GameID][true] || Player == WhoIsInTheGame[GameID][false]);
+
+        if(WhoIsInTheGame[GameID][false] == Player){
+
+            return WhoIsInTheGame[GameID][true];
+        }
+        if(WhoIsInTheGame[GameID][true] == Player){
+
+            return WhoIsInTheGame[GameID][false];
+        }
 
     }
 
