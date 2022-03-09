@@ -63,29 +63,29 @@ contract GameLogic {
 
 //// Dev notes: AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 
-    function PlayTurn(uint GameID, address OpponentsAddress, uint PieceID, uint MoveHowManySpacesX, uint MoveHowManySpacesY, bool Attack, uint AttackWhom) external {
+    function PlayTurn(uint GameID, uint PieceID, uint MoveHowManySpacesX, uint MoveHowManySpacesY, bool Attack, uint AttackWhom) external {
 
         require (Pieces[GameID][msg.sender][1] == PieceID || Pieces[GameID][msg.sender][2] == PieceID || Pieces[GameID][msg.sender][3] == PieceID || Pieces[GameID][msg.sender][4] == PieceID, "That Piece is not currently being used in the game!");
         require (GameID < (GameIDNonce - 1), "That game doesn't even exist yet you idiot!");
-        require (Dead[GameID][msg.sender][PieceID] = false, "You can't move a dead piece.");
+        require (Dead[GameID][msg.sender][PieceID] = false, "You can't move a dead piece... its dead");
         require(msg.sender == WhoIsInTheGame[GameID][true] || msg.sender == WhoIsInTheGame[GameID][false]);
         
         (LocationX[GameID][msg.sender][PieceID], LocationY[GameID][msg.sender][PieceID]) = move.MovePiece(PieceID, MoveHowManySpacesX, MoveHowManySpacesY);
 
         if(Attack == true){
 
-            require(move.getdistance(LocationX[GameID][msg.sender][PieceID],LocationY[GameID][msg.sender][PieceID],LocationX[GameID][OpponentsAddress][AttackWhom],LocationY[GameID][OpponentsAddress][AttackWhom]) == getstats.range(PieceID));
+            require(move.getdistance(LocationX[GameID][msg.sender][PieceID],LocationY[GameID][msg.sender][PieceID],LocationX[GameID][this.getplayer(GameID, msg.sender)][AttackWhom],LocationY[GameID][this.getplayer(GameID, msg.sender)][AttackWhom]) == getstats.range(PieceID));
 
-            (CurrentHP[GameID][msg.sender][PieceID], CurrentHP[GameID][OpponentsAddress][AttackWhom]) = combat.fight(GameID, msg.sender, OpponentsAddress, PieceID, AttackWhom);
+            (CurrentHP[GameID][msg.sender][PieceID], CurrentHP[GameID][this.getplayer(GameID, msg.sender)][AttackWhom]) = combat.fight(GameID, msg.sender, this.getplayer(GameID, msg.sender), PieceID, AttackWhom);
 
             if(CurrentHP[GameID][msg.sender][PieceID] == 0){
 
                 Dead[GameID][msg.sender][PieceID] = true;
             }
 
-            if(CurrentHP[GameID][OpponentsAddress][AttackWhom] == 0){
+            if(CurrentHP[GameID][this.getplayer(GameID, msg.sender)][AttackWhom] == 0){
 
-                Dead[GameID][OpponentsAddress][AttackWhom] = true;
+                Dead[GameID][this.getplayer(GameID, msg.sender)][AttackWhom] = true;
             }
         }
     }
@@ -94,7 +94,11 @@ contract GameLogic {
 
     function Win(uint GameID) external {
 
+        require(Dead[GameID][this.getplayer(GameID, msg.sender)][Pieces[GameID][this.getplayer(GameID, msg.sender)][1]] == true);
+        require(Dead[GameID][this.getplayer(GameID, msg.sender)][Pieces[GameID][this.getplayer(GameID, msg.sender)][2]] == true);
+        require(Dead[GameID][this.getplayer(GameID, msg.sender)][Pieces[GameID][this.getplayer(GameID, msg.sender)][3]] == true);
         require(Dead[GameID][this.getplayer(GameID, msg.sender)][Pieces[GameID][this.getplayer(GameID, msg.sender)][4]] == true);
+
     }
 
     
