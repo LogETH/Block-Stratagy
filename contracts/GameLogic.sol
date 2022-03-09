@@ -61,7 +61,7 @@ contract GameLogic {
 
         require (Pieces[GameID][msg.sender][1] == PieceID || Pieces[GameID][msg.sender][2] == PieceID || Pieces[GameID][msg.sender][3] == PieceID || Pieces[GameID][msg.sender][4] == PieceID, "That Piece is not currently being used in the game!");
         require (GameID < (GameIDNonce - 1), "That game doesn't even exist yet you idiot!");
-        require (Dead[GameID][msg.sender][PieceID] = false, "You can't move a dead piece.")
+        require (Dead[GameID][msg.sender][PieceID] = false, "You can't move a dead piece.");
         
         (LocationX[GameID][msg.sender][PieceID], LocationY[GameID][msg.sender][PieceID]) = move.MovePiece(PieceID, MoveHowManySpacesX, MoveHowManySpacesY);
 
@@ -71,12 +71,12 @@ contract GameLogic {
 
             (CurrentHP[GameID][msg.sender][PieceID], CurrentHP[GameID][msg.sender][AttackWhom]) = combat.fight(PieceID, AttackWhom);
 
-            if(CurrentHP[GameID][msg.sender][PieceID] = 0){
+            if(CurrentHP[GameID][msg.sender][PieceID] == 0){
 
                 Dead[GameID][msg.sender][PieceID] = true;
             }
 
-            if(CurrentHP[GameID][msg.sender][AttackWhom] = 0){
+            if(CurrentHP[GameID][msg.sender][AttackWhom] == 0){
 
                 Dead[GameID][msg.sender][AttackWhom] = true;
             }
