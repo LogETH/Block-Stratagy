@@ -8,11 +8,19 @@ contract GameLogic {
     //It can also play multiple games at the same time
 
     Stat getstats;
+    CombatContract combat;
     uint GameIDNonce;
 
     mapping(address => mapping(address => uint)) Invite;
     mapping(uint => mapping(address => mapping(uint => uint))) Pieces;
+    mapping(uint => mapping(address => mapping(uint => mapping(uint => uint)))) LocationX;
+    mapping(uint => mapping(address => mapping(uint => mapping(uint => uint)))) LocationY;
+    mapping(uint => Map) GameMap;
     mapping(address => bool) ingame;
+
+////Mobile Stats
+
+    mapping(uint => mapping(address => mapping(uint => mapping(uint => uint)))) CurrentHP;
 
     function InviteOpponent(address Opponent, Map EnterMapAddress, uint Piece1, uint Piece2, uint Piece3, uint Piece4) external{
 
@@ -22,10 +30,11 @@ contract GameLogic {
         Pieces[GameIDNonce][msg.sender][4] = Piece4;
 
         Invite[msg.sender][Opponent] = GameIDNonce;
+        GameMap[GameIDNonce] = EnterMapAddress;
         GameIDNonce += 1;
     }
 
-    function StartGame(uint GameID, uint Piece1, uint Piece2, uint Piece3, uint Piece4) public {
+    function StartGame(uint GameID, uint Piece1, uint Piece2, uint Piece3, uint Piece4) external {
 
         address Opponent;
 
@@ -40,9 +49,26 @@ contract GameLogic {
         ingame[Opponent] = true;
     }
 
-////////////////////////////////////////////////////////////////////////////////////////
-////                   Internal functions this contract uses                        ////
-////////////////////////////////////////////////////////////////////////////////////////
+    function PlayTurn(uint GameID, uint PieceID, uint MoveHowManySpacesX, uint MoveHowManySpacesY, bool Attack, uint AttackWhom) external {
+
+        require (Pieces[GameID][msg.sender][1] == PieceID || Pieces[GameID][msg.sender][2] == PieceID || Pieces[GameID][msg.sender][3] == PieceID || Pieces[GameID][msg.sender][4] == PieceID, "That Piece is not currenty being used in the game!");
+        
+
+
+        if(Attack == true){
+
+            uint HP1;
+            uint HP2;
+
+            (HP1, HP2) = combat.fight(PieceID, AttackWhom);
+        }
+    }
+
+    
+
+//////////////////////////////////////////////////////////////////////////////////////////
+////                     Internal functions this contract uses                        ////
+//////////////////////////////////////////////////////////////////////////////////////////
 
     function GetGameData(uint GameID, uint DataID) internal {
 
@@ -56,6 +82,11 @@ contract GameLogic {
 
 
 
+}
+
+interface CombatContract{
+
+    function fight(uint Piece1, uint Piece2) external returns(uint, uint);
 }
 
 interface Map{
