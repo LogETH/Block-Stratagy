@@ -57,28 +57,29 @@ contract GameLogic {
 
 //// Dev notes: AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 
-    function PlayTurn(uint GameID, uint PieceID, uint MoveHowManySpacesX, uint MoveHowManySpacesY, bool Attack, uint AttackWhom) external {
+    function PlayTurn(uint GameID, address OpponentsAddress, uint PieceID, uint MoveHowManySpacesX, uint MoveHowManySpacesY, bool Attack, uint AttackWhom) external {
 
         require (Pieces[GameID][msg.sender][1] == PieceID || Pieces[GameID][msg.sender][2] == PieceID || Pieces[GameID][msg.sender][3] == PieceID || Pieces[GameID][msg.sender][4] == PieceID, "That Piece is not currently being used in the game!");
         require (GameID < (GameIDNonce - 1), "That game doesn't even exist yet you idiot!");
         require (Dead[GameID][msg.sender][PieceID] = false, "You can't move a dead piece.");
+        require (OpponentsAddress)
         
         (LocationX[GameID][msg.sender][PieceID], LocationY[GameID][msg.sender][PieceID]) = move.MovePiece(PieceID, MoveHowManySpacesX, MoveHowManySpacesY);
 
         if(Attack == true){
 
-            require(move.getdistance(LocationX[GameID][msg.sender][PieceID],LocationY[GameID][msg.sender][PieceID],LocationX[GameID][msg.sender][AttackWhom],LocationY[GameID][msg.sender][AttackWhom]) == getstats.range(PieceID));
+            require(move.getdistance(LocationX[GameID][msg.sender][PieceID],LocationY[GameID][msg.sender][PieceID],LocationX[GameID][OpponentsAddress][AttackWhom],LocationY[GameID][OpponentsAddress][AttackWhom]) == getstats.range(PieceID));
 
-            (CurrentHP[GameID][msg.sender][PieceID], CurrentHP[GameID][msg.sender][AttackWhom]) = combat.fight(PieceID, AttackWhom);
+            (CurrentHP[GameID][msg.sender][PieceID], CurrentHP[GameID][OpponentsAddress][AttackWhom]) = combat.fight(GameID, msg.sender, OpponentsAddress, PieceID, AttackWhom);
 
             if(CurrentHP[GameID][msg.sender][PieceID] == 0){
 
                 Dead[GameID][msg.sender][PieceID] = true;
             }
 
-            if(CurrentHP[GameID][msg.sender][AttackWhom] == 0){
+            if(CurrentHP[GameID][OpponentsAddress][AttackWhom] == 0){
 
-                Dead[GameID][msg.sender][AttackWhom] = true;
+                Dead[GameID][OpponentsAddress][AttackWhom] = true;
             }
         }
     }
@@ -89,10 +90,9 @@ contract GameLogic {
 ////                     Internal functions this contract uses                        ////
 //////////////////////////////////////////////////////////////////////////////////////////
 
-    function GetLocation(uint GameID, uint DataID) internal {
+    function hp(uint GameID, address Who, uint PieceID) external view returns (uint) {
 
-
-
+        return CurrentHP[GameID][Who][PieceID];
 
     }
 
@@ -111,7 +111,7 @@ interface Movement{
 
 interface CombatContract{
 
-    function fight(uint Piece1, uint Piece2) external returns(uint, uint);
+    function fight(uint GameID, address initiator, address defender, uint Piece1, uint Piece2) external returns(uint, uint);
 }
 
 interface Map{
