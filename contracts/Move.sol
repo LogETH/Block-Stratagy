@@ -2,7 +2,7 @@
 
 pragma solidity >=0.7.0 <0.9.0;
 
-contract MoveLogic {
+contract Move {
 
     //This contract stores movement logic, nothing else. The Map and obsticles (I can't spell) are in another contract connected to this one
 
@@ -16,30 +16,6 @@ contract MoveLogic {
         uint256 Current_LocationX;
         uint256 Current_LocationY;
 
-        Current_LocationX = X[tx.origin][PieceID];
-        Current_LocationY = Y[tx.origin][PieceID];
-
-        //Absolute Value thingies because solidity doesn't have any built in
-
-        if(DestinationX < 0){
-            DestinationX = 0-DestinationX;
-        }
-
-        if(DestinationY < 0){
-            DestinationY = 0-DestinationX;
-        }
-
-        MovementY = Current_LocationY-DestinationY;
-
-        if(MovementY < 0){
-            MovementY = 0-MovementY;
-        }
-
-        MovementX = Current_LocationX-DestinationX;
-
-        if(MovementX < 0){
-            MovementX = 0-MovementX;
-        }
 
         TotalMovement = MovementY + MovementX;
 
@@ -48,9 +24,32 @@ contract MoveLogic {
 
         require(Movelimit <= TotalMovement);
 
-        X[tx.origin][PieceID] = DestinationX;
-        Y[tx.origin][PieceID] = DestinationY;
 
+    }
+
+    function getdistance(int Location1, int Location2, int Location3, int Location4) external returns(uint){
+
+        uint distance1;
+        uint distance2;
+        uint TotalDistance;
+
+        distance1 = this.AbsoluteValue(int(Location1) - int(Location3));
+        distance2 = this.AbsoluteValue(int(Location2) - int(Location4));
+
+        TotalDistance = distance1 - distance2;
+
+        return TotalDistance;
+
+
+    }
+
+    function AbsoluteValue(int Value) external view returns (uint){
+
+        if(Value < 0){
+            Value = 0-Value;
+        }
+
+        return uint(Value);
     }
 
     string text = "This contract stores movement logic for Block Stratagy, there are no other buttons because all of them are internal and can only be called by the main contract";
