@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: None
+// SPDX-License-Identifier: MIT
 
 pragma solidity >=0.7.0 <0.9.0;
 
@@ -53,7 +53,7 @@ contract MoveLogic {
 
     }
 
-    string text = "This contract stores movement logic for this game, there are no other buttons because all of them are internal and can only be called by the main contract";
+    string text = "This contract stores movement logic for Block Stratagy, there are no other buttons because all of them are internal and can only be called by the main contract";
 
     function WhatisThisContract() public view returns(string memory){
 
@@ -64,9 +64,4 @@ contract MoveLogic {
 
 interface StatStorage{
     function movelimit(uint256 PieceID) external returns(uint256);
-}
-interface GameControls{
-
-    
-
 }
