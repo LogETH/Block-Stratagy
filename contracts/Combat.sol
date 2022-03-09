@@ -2,64 +2,157 @@
 
 pragma solidity >=0.7.0 <0.9.0;
 
-contract combat {
+contract GameLogic {
 
-    //This contract stores combat logic, nothing else. It is called whenever there is combat.
+    //This contract stores game logic, its a contract that stores the game in local memory
+    //It can also play multiple games at the same time
 
     Stat getstats;
-    Game getdata;
+    CombatContract combat;
+    Movement move;
+    uint GameIDNonce;
 
-    function fight(uint GameID, address initiator, address defender, uint Piece1, uint Piece2) external returns (uint, uint){
+////Nested mappings are bruh, like, very bruh
 
+    mapping(address => mapping(address => uint)) Invite;
+    mapping(uint => mapping(address => mapping(uint => uint))) Pieces;
+    mapping(uint => mapping(address => mapping(uint => uint))) LocationX;
+    mapping(uint => mapping(address => mapping(uint => uint))) LocationY;
+    mapping(uint => mapping(address => mapping(uint => bool))) Dead;
+    
+    mapping(uint => mapping(bool => address)) WhoIsInTheGame;
+    mapping(uint => Map) GameMap;
+    mapping(address => bool) ingame;
+
+////Mobile Stats
+
+    mapping(uint => mapping(address => mapping(uint => uint))) CurrentHP;
+
+////and the code
+
+    function InviteOpponent(address Opponent, Map EnterMapAddress, uint Piece1, uint Piece2, uint Piece3, uint Piece4) external{
+
+        Pieces[GameIDNonce][msg.sender][1] = Piece1;
+        Pieces[GameIDNonce][msg.sender][2] = Piece2;
+        Pieces[GameIDNonce][msg.sender][3] = Piece3;
+        Pieces[GameIDNonce][msg.sender][4] = Piece4;
+
+        WhoIsInTheGame[GameIDNonce][true] = msg.sender;
+
+        Invite[msg.sender][Opponent] = GameIDNonce;
+        GameMap[GameIDNonce] = EnterMapAddress;
+        GameIDNonce += 1;
+    }
+
+    function StartGame(uint GameID, uint Piece1, uint Piece2, uint Piece3, uint Piece4) external {
+
+        address Opponent;
+
+        require(Invite[msg.sender][Opponent] == GameIDNonce);
+
+        Pieces[GameID][msg.sender][1] = Piece1;
+        Pieces[GameID][msg.sender][2] = Piece2;
+        Pieces[GameID][msg.sender][3] = Piece3;
+        Pieces[GameID][msg.sender][4] = Piece4;
+
+        WhoIsInTheGame[GameID][false] = msg.sender;
+
+        ingame[msg.sender] = true;
+        ingame[Opponent] = true;
+    }
+
+//// Dev notes: AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+
+    function PlayTurn(uint GameID, uint PieceID, uint MoveHowManySpacesX, uint MoveHowManySpacesY, bool Attack, uint AttackWhom) external {
+
+        require (Pieces[GameID][msg.sender][1] == PieceID || Pieces[GameID][msg.sender][2] == PieceID || Pieces[GameID][msg.sender][3] == PieceID || Pieces[GameID][msg.sender][4] == PieceID, "That Piece is not currently being used in the game!");
+        require (GameID < (GameIDNonce - 1), "That game doesn't even exist yet you idiot!");
+        require (Dead[GameID][msg.sender][PieceID] = false, "You can't move a dead piece... its dead");
+        require(msg.sender == WhoIsInTheGame[GameID][true] || msg.sender == WhoIsInTheGame[GameID][false]);
         
-        uint HP1 = getdata.hp(GameID, initiator, Piece1);
-        uint HP2 = getdata.hp(GameID, defender, Piece2);
+        (LocationX[GameID][msg.sender][PieceID], LocationY[GameID][msg.sender][PieceID]) = move.MovePiece(PieceID, MoveHowManySpacesX, MoveHowManySpacesY);
 
-//        this.EnablePreCombatSkills();
-        
-        this.Attack(Piece1, Piece2);
-        if(HP2 <= 0){return (HP1, 0);}
-        this.Attack(Piece2, Piece1);
-        if(HP1 <= 0){return (0, HP2);}
+        if(Attack == true){
 
-        if((getstats.spd(Piece1) + 10) > getstats.spd(Piece2)){
- 
-            this.Attack(Piece1, Piece2);
-            if(HP2 <= 0){return (HP1, 0);}
+            require(move.getdistance(LocationX[GameID][msg.sender][PieceID],LocationY[GameID][msg.sender][PieceID],LocationX[GameID][this.getplayer(GameID, msg.sender)][AttackWhom],LocationY[GameID][this.getplayer(GameID, msg.sender)][AttackWhom]) == getstats.range(PieceID));
+
+            (CurrentHP[GameID][msg.sender][PieceID], CurrentHP[GameID][this.getplayer(GameID, msg.sender)][AttackWhom]) = combat.fight(GameID, msg.sender, this.getplayer(GameID, msg.sender), PieceID, AttackWhom);
+
+            if(CurrentHP[GameID][msg.sender][PieceID] == 0){
+
+                Dead[GameID][msg.sender][PieceID] = true;
+            }
+
+            if(CurrentHP[GameID][this.getplayer(GameID, msg.sender)][AttackWhom] == 0){
+
+                Dead[GameID][this.getplayer(GameID, msg.sender)][AttackWhom] = true;
+            }
         }
-        if((getstats.spd(Piece2) + 10) > getstats.spd(Piece1)){
- 
-            this.Attack(Piece2, Piece1);
-            if(HP1 <= 0){return (0, HP2);}
+    }
+
+//// Dev notes: Using a funcation command in a nested mapping as a variable inside a nested mapping is fun
+
+    function Win(uint GameID) external {
+
+        require(Dead[GameID][this.getplayer(GameID, msg.sender)][Pieces[GameID][this.getplayer(GameID, msg.sender)][1]] == true);
+        require(Dead[GameID][this.getplayer(GameID, msg.sender)][Pieces[GameID][this.getplayer(GameID, msg.sender)][2]] == true);
+        require(Dead[GameID][this.getplayer(GameID, msg.sender)][Pieces[GameID][this.getplayer(GameID, msg.sender)][3]] == true);
+        require(Dead[GameID][this.getplayer(GameID, msg.sender)][Pieces[GameID][this.getplayer(GameID, msg.sender)][4]] == true);
+
+    }
+
+    
+    
+
+//////////////////////////////////////////////////////////////////////////////////////////
+////                     Internal functions this contract uses                        ////
+//////////////////////////////////////////////////////////////////////////////////////////
+
+    function hp(uint GameID, address Who, uint PieceID) external view returns (uint) {
+
+        return CurrentHP[GameID][Who][PieceID];
+
+    }
+
+/// This function tells you who your opponent is, in case you forgot
+
+    function getplayer(uint GameID, address Player) external view returns (address){
+
+        require(Player == WhoIsInTheGame[GameID][true] || Player == WhoIsInTheGame[GameID][false]);
+
+        if(WhoIsInTheGame[GameID][false] == Player){
+
+            return WhoIsInTheGame[GameID][true];
+        }
+        if(WhoIsInTheGame[GameID][true] == Player){
+
+            return WhoIsInTheGame[GameID][false];
         }
 
-        return (HP1, HP2); 
-
     }
 
-    function Attack(uint Initiator, uint Defender) external {
-
-        uint Damage;
-        uint LocalHP;
-
-        Damage = getstats.atk(Initiator) - getstats.def(Defender);
-
-//        this.EnableInCombatSkills();
-
-        if(Damage <= 0){Damage = 0;}
-
-        LocalHP -= Damage;
 
 
-    }
-
-    function skills() external{
 
 
-    }
+
 }
 
+interface Movement{
 
+    function MovePiece(uint, uint, uint) external returns(uint,uint);
+    function getdistance(uint, uint, uint, uint) external returns (uint);
+}
+
+interface CombatContract{
+
+    function fight(uint GameID, address initiator, address defender, uint Piece1, uint Piece2) external returns(uint, uint);
+}
+
+interface Map{
+
+
+}
 
 interface Stat{
     function mov(uint256 PieceID) external returns(uint256);
@@ -68,8 +161,5 @@ interface Stat{
     function spd(uint256 PieceID) external returns(uint256);
     function maj(uint256 PieceID) external returns(uint256);
     function mhp(uint256 PieceID) external returns(uint256);
-}
-
-interface Game{
-    function hp(uint GameID, address Who, uint PieceID) external returns(uint256);
+    function range(uint PieceID) external returns(uint256);
 }
