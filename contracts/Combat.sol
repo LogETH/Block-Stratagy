@@ -9,42 +9,46 @@ contract combat {
     Stat getstats;
     Game getdata;
 
-    function fight(uint Piece1, uint Piece2) external returns (uint){
+    function fight(uint Piece1, uint Piece2) external returns (uint, uint){
 
-        uint Damage;
+        
         uint HP1 = getdata.hp(Piece1);
         uint HP2 = getdata.hp(Piece2);
 
-        this.EnablePreCombatSkills();
+//        this.EnablePreCombatSkills();
         
         this.Attack(Piece1, Piece2);
-        if(HP2 <= 0){return 1;}
+        if(HP2 <= 0){return (HP1, 0);}
         this.Attack(Piece2, Piece1);
-        if(HP2 <= 0){return 1;}
+        if(HP1 <= 0){return (0, HP2);}
 
         if((getstats.spd(Piece1) + 10) > getstats.spd(Piece2)){
  
             this.Attack(Piece1, Piece2);
-            if(HP2 <= 0){return 1;}
+            if(HP2 <= 0){return (HP1, 0);}
         }
         if((getstats.spd(Piece2) + 10) > getstats.spd(Piece1)){
  
             this.Attack(Piece2, Piece1);
-            if(HP2 <= 0){return 1;}
+            if(HP1 <= 0){return (0, HP2);}
         }
 
+        return (HP1, HP2); 
 
     }
 
-    function Attack(uint Initiator, Defender) external {
+    function Attack(uint Initiator, uint Defender) external {
 
-                Damage = getstats.atk(Initiator) - getstats.def(Defender);
+        uint Damage;
+        uint LocalHP;
 
-                this.EnableInCombatSkills()
+        Damage = getstats.atk(Initiator) - getstats.def(Defender);
 
-                if(Damage <= 0){Damage = 0;}
+//        this.EnableInCombatSkills();
 
-                HP2 -= Damage;
+        if(Damage <= 0){Damage = 0;}
+
+        LocalHP -= Damage;
 
 
     }
