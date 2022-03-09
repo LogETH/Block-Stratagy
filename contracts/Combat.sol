@@ -9,11 +9,11 @@ contract combat {
     Stat getstats;
     Game getdata;
 
-    function fight(uint Piece1, uint Piece2) external returns (uint, uint){
+    function fight(uint GameID, address initiator, address defender, uint Piece1, uint Piece2) external returns (uint, uint){
 
         
-        uint HP1 = getdata.hp(Piece1);
-        uint HP2 = getdata.hp(Piece2);
+        uint HP1 = getdata.hp(GameID, initiator, Piece1);
+        uint HP2 = getdata.hp(GameID, defender, Piece2);
 
 //        this.EnablePreCombatSkills();
         
@@ -71,5 +71,5 @@ interface Stat{
 }
 
 interface Game{
-    function hp(uint256 PieceID) external returns(uint256);
+    function hp(uint GameID, address Who, uint PieceID) external returns(uint256);
 }
