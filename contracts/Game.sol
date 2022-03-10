@@ -16,8 +16,8 @@ contract GameLogic {
 
     mapping(address => mapping(address => uint)) Invite;
     mapping(uint => mapping(address => mapping(uint => uint))) Pieces;
-    mapping(uint => mapping(address => mapping(uint => uint))) LocationX;
-    mapping(uint => mapping(address => mapping(uint => uint))) LocationY;
+    mapping(uint => mapping(address => mapping(uint => int))) LocationX;
+    mapping(uint => mapping(address => mapping(uint => int))) LocationY;
     mapping(uint => mapping(address => mapping(uint => bool))) Dead;
     
     mapping(uint => mapping(bool => address)) WhoIsInTheGame;
@@ -63,7 +63,7 @@ contract GameLogic {
 
 //// Dev notes: AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 
-    function PlayTurn(uint GameID, uint PieceID, uint MoveHowManySpacesX, uint MoveHowManySpacesY, bool Attack, uint AttackWhom) external {
+    function PlayTurn(uint GameID, uint PieceID, int MoveHowManySpacesX, int MoveHowManySpacesY, bool Attack, uint AttackWhom) external {
 
         require (Pieces[GameID][msg.sender][1] == PieceID || Pieces[GameID][msg.sender][2] == PieceID || Pieces[GameID][msg.sender][3] == PieceID || Pieces[GameID][msg.sender][4] == PieceID, "That Piece is not currently being used in the game!");
         require (GameID < (GameIDNonce - 1), "That game doesn't even exist yet you idiot!");
@@ -140,8 +140,8 @@ contract GameLogic {
 
 interface Movement{
 
-    function MovePiece(uint, uint, uint) external returns(uint,uint);
-    function getdistance(uint, uint, uint, uint) external returns (uint);
+    function MovePiece(uint, int, int) external returns(int,int);
+    function getdistance(int, int, int, int) external returns (uint);
 }
 
 interface CombatContract{
