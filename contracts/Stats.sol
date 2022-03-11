@@ -8,6 +8,8 @@ contract Stats {
     //It also establishes a very easy syntax to get stats
     //getstats.atk(pieceID) is all you have to do to get the stats
 
+    //Token ID == Piece ID, they are the same.
+
     address Router = 0xC65423A320916d7DAF86341De6278d02c7E1D3B1;
 
 //// Variables that store the base stat values of every piece except HP
@@ -48,11 +50,16 @@ contract Stats {
 
 //// These are functions that edit stats, they are not meant to be called normally
 
-    function EditStats(uint PieceID) internal {
+    function EditStats(uint PieceID, uint _atk, uint _spd, uint _def, uint _mag, uint _mov, uint _mhp) external {
 
         require(msg.sender == Router);
 
-        
+        ATK[PieceID] = _atk;
+        SPD[PieceID] = _spd;
+        DEF[PieceID] = _def;
+        MAG[PieceID] = _mag;
+        MOV[PieceID] = _mov;
+        MHP[PieceID] = _mhp;
 
     }
 
