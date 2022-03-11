@@ -6,7 +6,7 @@ contract Map {
 
 //// An example map
 
-    // objects are stored in a special way, the corrdinate is stored in a single uint (unsigned integer) by using math
+    // objects are stored in a special way, the corrdinate is stored in a single int (signed (like -+) integer) by using math
     // Imo people learn better from examples, so here are some
     // There's a nine in the front so it works, without it it would break.
     // 9001023 = (1,23)
@@ -16,6 +16,14 @@ contract Map {
     // This does make the max spaces 999x999 in a map, but I don't think you'd be going that big.
     
     mapping(int => bool) wall;
+    mapping(int => int) spawnlocation;
+
+    function getspawnlocation(int SpawnNumber) external view returns (int, int){
+
+        (int X,int Y) = this.PullVariable(spawnlocation[SpawnNumber]);
+
+        return(X,Y);
+    }
 
     function checkwall(int X, int Y) external returns (bool){
 
@@ -27,10 +35,10 @@ contract Map {
 
     // The following function was taken and edited from https://ethresear.ch/t/micro-slots-researching-how-to-store-multiple-values-in-a-single-uint256-slot/5338
 
-    function PullVariable(uint corrdinate) public pure returns (uint, uint){
+    function PullVariable(int corrdinate) public pure returns (int, int){
 
-        uint X = ((corrdinate % (10 ** 4)) - (corrdinate % (10 ** (6 - 3)))) / (10 ** (6 - 3));
-        uint Y = ((corrdinate % (10 ** 3)) - (corrdinate % (10 ** (3 - 3)))) / (10 ** (3 - 3));
+        int X = ((corrdinate % (10 ** 4)) - (corrdinate % (10 ** (6 - 3)))) / (10 ** (6 - 3));
+        int Y = ((corrdinate % (10 ** 3)) - (corrdinate % (10 ** (3 - 3)))) / (10 ** (3 - 3));
         return (X,Y);
     }
 
