@@ -39,6 +39,11 @@ contract GameLogic {
 
         WhoIsInTheGame[GameIDNonce][true] = msg.sender;
 
+        (LocationX[GameIDNonce][msg.sender][Pieces[GameIDNonce][msg.sender][1]], LocationY[GameIDNonce][msg.sender][Pieces[GameIDNonce][msg.sender][1]]) = GameMap[GameIDNonce].getspawnlocation(1);
+        (LocationX[GameIDNonce][msg.sender][Pieces[GameIDNonce][msg.sender][2]], LocationY[GameIDNonce][msg.sender][Pieces[GameIDNonce][msg.sender][2]]) = GameMap[GameIDNonce].getspawnlocation(2);
+        (LocationX[GameIDNonce][msg.sender][Pieces[GameIDNonce][msg.sender][3]], LocationY[GameIDNonce][msg.sender][Pieces[GameIDNonce][msg.sender][3]]) = GameMap[GameIDNonce].getspawnlocation(3);
+        (LocationX[GameIDNonce][msg.sender][Pieces[GameIDNonce][msg.sender][4]], LocationY[GameIDNonce][msg.sender][Pieces[GameIDNonce][msg.sender][4]]) = GameMap[GameIDNonce].getspawnlocation(4);
+
         Invite[msg.sender][Opponent] = GameIDNonce;
         GameMap[GameIDNonce] = EnterMapAddress;
         GameIDNonce += 1;
@@ -55,6 +60,11 @@ contract GameLogic {
         Pieces[GameID][msg.sender][3] = Piece3;
         Pieces[GameID][msg.sender][4] = Piece4;
 
+        (LocationX[GameID][msg.sender][Pieces[GameID][msg.sender][1]], LocationY[GameID][msg.sender][Pieces[GameID][msg.sender][1]]) = GameMap[GameID].getspawnlocation(1);
+        (LocationX[GameID][msg.sender][Pieces[GameID][msg.sender][2]], LocationY[GameID][msg.sender][Pieces[GameID][msg.sender][2]]) = GameMap[GameID].getspawnlocation(2);
+        (LocationX[GameID][msg.sender][Pieces[GameID][msg.sender][3]], LocationY[GameID][msg.sender][Pieces[GameID][msg.sender][3]]) = GameMap[GameID].getspawnlocation(3);
+        (LocationX[GameID][msg.sender][Pieces[GameID][msg.sender][4]], LocationY[GameID][msg.sender][Pieces[GameID][msg.sender][4]]) = GameMap[GameID].getspawnlocation(4);
+
         WhoIsInTheGame[GameID][false] = msg.sender;
 
         ingame[msg.sender] = true;
@@ -70,7 +80,7 @@ contract GameLogic {
         require (Dead[GameID][msg.sender][PieceID] = false, "You can't move a dead piece... its dead");
         require(msg.sender == WhoIsInTheGame[GameID][true] || msg.sender == WhoIsInTheGame[GameID][false]);
         
-        (LocationX[GameID][msg.sender][PieceID], LocationY[GameID][msg.sender][PieceID]) = move.MovePiece(PieceID, MoveHowManySpacesX, MoveHowManySpacesY);
+        (LocationX[GameID][msg.sender][PieceID], LocationY[GameID][msg.sender][PieceID]) = move.MovePiece(GameID, msg.sender, PieceID, MoveHowManySpacesX, MoveHowManySpacesY, GameMap[GameID]);
 
         if(Attack == true){
 
@@ -92,7 +102,7 @@ contract GameLogic {
 
 //// Dev notes: Using a funcation command in a nested mapping as a variable inside a nested mapping is fun
 
-    function Win(uint GameID) external {
+    function Win(uint GameID) external view {
 
         require(Dead[GameID][this.getplayer(GameID, msg.sender)][Pieces[GameID][this.getplayer(GameID, msg.sender)][1]] == true);
         require(Dead[GameID][this.getplayer(GameID, msg.sender)][Pieces[GameID][this.getplayer(GameID, msg.sender)][2]] == true);
@@ -112,6 +122,11 @@ contract GameLogic {
 
         return CurrentHP[GameID][Who][PieceID];
 
+    }
+
+    function getlocation(uint GameID, address Player, uint PieceID) external view returns (int, int){
+
+        return (LocationX[GameID][Player][PieceID],LocationY[GameID][Player][PieceID]);
     }
 
 /// This function tells you who your opponent is, in case you forgot
@@ -139,18 +154,16 @@ contract GameLogic {
 }
 
 interface Movement{
-
-    function MovePiece(uint, int, int) external returns(int,int);
+    function MovePiece(uint, address, uint, int, int, Map) external returns(int,int);
     function getdistance(int, int, int, int) external returns (uint);
 }
 
 interface CombatContract{
-
     function fight(uint GameID, address initiator, address defender, uint Piece1, uint Piece2) external returns(uint, uint);
 }
 
 interface Map{
-
+    function getspawnlocation(int SpawnNumber) external view returns (int, int);
 
 }
 
