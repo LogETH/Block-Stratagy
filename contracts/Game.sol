@@ -32,6 +32,8 @@ contract GameLogic {
 
     function InviteOpponent(address Opponent, Map EnterMapAddress, uint Piece1, uint Piece2, uint Piece3, uint Piece4) external{
 
+        require(getstats.ownerOf(Piece1) == msg.sender && getstats.ownerOf(Piece2) == msg.sender && getstats.ownerOf(Piece3) == msg.sender && getstats.ownerOf(Piece4) == msg.sender, "You don't own this character!");
+
         Pieces[GameIDNonce][msg.sender][1] = Piece1;
         Pieces[GameIDNonce][msg.sender][2] = Piece2;
         Pieces[GameIDNonce][msg.sender][3] = Piece3;
@@ -50,6 +52,8 @@ contract GameLogic {
     }
 
     function StartGame(uint GameID, uint Piece1, uint Piece2, uint Piece3, uint Piece4) external {
+
+        require(getstats.ownerOf(Piece1) == msg.sender && getstats.ownerOf(Piece2) == msg.sender && getstats.ownerOf(Piece3) == msg.sender && getstats.ownerOf(Piece4) == msg.sender, "You don't own this character!");
 
         address Opponent;
 
@@ -175,4 +179,6 @@ interface Stat{
     function maj(uint256 PieceID) external returns(uint256);
     function mhp(uint256 PieceID) external returns(uint256);
     function range(uint PieceID) external returns(uint256);
+
+    function ownerOf(uint256 tokenId) external view returns (address);
 }
