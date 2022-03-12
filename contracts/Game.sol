@@ -95,7 +95,7 @@ contract GameLogic {
         require(Turn[GameID] == msg.sender, "Its not your turn!");
         
         require (Pieces[GameID][msg.sender][1] == PieceID || Pieces[GameID][msg.sender][2] == PieceID || Pieces[GameID][msg.sender][3] == PieceID || Pieces[GameID][msg.sender][4] == PieceID, "That Piece is not currently being used in the game!");
-        require (GameID < (GameIDNonce - 1), "That game doesn't even exist yet you idiot!");
+        require (GameID <= (GameIDNonce - 1), "That game doesn't even exist yet you idiot!");
         require (Dead[GameID][msg.sender][PieceID] = false, "You can't move a dead piece... its dead");
         require(msg.sender == WhoIsInTheGame[GameID][true] || msg.sender == WhoIsInTheGame[GameID][false]);
         
