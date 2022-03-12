@@ -14,9 +14,9 @@ contract GameLogic {
 
     constructor(){
 
-        getstats = Stat(0x16B20c9Db9c99669dF97498B6Dab1f04fae0dbab);
-        combat = CombatContract(0x742Fb9C053Eb756E98d36C6859DfAACe581Ce0C0);
-        move = Movement(0x4b449FEB7D635862Ab07C86C0eA3b6018EC4a3A7);
+        getstats = Stat(0xC6E0041D2f62A8Ba2704B264BcE0f50E27d6ac6E);
+        combat = CombatContract(0xd32535c3EbF44f29358759B105B4d58e76F6643a);
+        move = Movement(0x41822ac81E89A8E6b022DBec048AC886dAF78307);
     }
 
 
@@ -78,7 +78,7 @@ contract GameLogic {
         (LocationX[GameID][msg.sender][Pieces[GameID][msg.sender][1]], LocationY[GameID][msg.sender][Pieces[GameID][msg.sender][1]]) = GameMap[GameID].getspawnlocation(5);
         (LocationX[GameID][msg.sender][Pieces[GameID][msg.sender][2]], LocationY[GameID][msg.sender][Pieces[GameID][msg.sender][2]]) = GameMap[GameID].getspawnlocation(6);
         (LocationX[GameID][msg.sender][Pieces[GameID][msg.sender][3]], LocationY[GameID][msg.sender][Pieces[GameID][msg.sender][3]]) = GameMap[GameID].getspawnlocation(7);
-        (LocationX[GameID][msg.sender][Pieces[GameID][msg.sender][4]], LocationY[GameID][msg.sender][Pieces[GameID][msg.sender][4]]) = GameMap[GameID].getspawnlocation(4);
+        (LocationX[GameID][msg.sender][Pieces[GameID][msg.sender][4]], LocationY[GameID][msg.sender][Pieces[GameID][msg.sender][4]]) = GameMap[GameID].getspawnlocation(8);
 
         WhoIsInTheGame[GameID][false] = msg.sender;
 
@@ -96,8 +96,8 @@ contract GameLogic {
         
         require (Pieces[GameID][msg.sender][1] == PieceID || Pieces[GameID][msg.sender][2] == PieceID || Pieces[GameID][msg.sender][3] == PieceID || Pieces[GameID][msg.sender][4] == PieceID, "That Piece is not currently being used in the game!");
         require (GameID <= (GameIDNonce - 1), "That game doesn't even exist yet you idiot!");
-        require (Dead[GameID][msg.sender][PieceID] = false, "You can't move a dead piece... its dead");
-        require(msg.sender == WhoIsInTheGame[GameID][true] || msg.sender == WhoIsInTheGame[GameID][false]);
+        require (Dead[GameID][msg.sender][PieceID] != true, "You can't move a dead piece... its dead");
+        require (msg.sender == WhoIsInTheGame[GameID][true] || msg.sender == WhoIsInTheGame[GameID][false]);
         
         (LocationX[GameID][msg.sender][PieceID], LocationY[GameID][msg.sender][PieceID]) = move.MovePiece(GameID, msg.sender, PieceID, MoveHowManySpacesX, MoveHowManySpacesY, GameMap[GameID]);
 
@@ -169,13 +169,20 @@ contract GameLogic {
 
 
 
+//////////////////////////////////////////////////////////////////////////////////////////
+////                     Functions used for debug and interface                       ////
+//////////////////////////////////////////////////////////////////////////////////////////
 
+    function DisplayDead(uint GameID, uint PieceID) external view returns(bool){
+
+        return Dead[GameID][msg.sender][PieceID];
+    }
 
 
 }
 
 interface Movement{
-    function MovePiece(uint, address, uint, int, int, Map) external returns(int,int);
+    function MovePiece(uint GameID, address player, uint256 PieceID, int256 MovementY, int256 MovementX, Map MapAddress) external returns(int, int);
     function getdistance(int, int, int, int) external returns (uint);
 }
 
