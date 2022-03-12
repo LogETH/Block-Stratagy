@@ -22,6 +22,9 @@ contract Map {
 
     constructor(){
 
+    // How many spaces the map is, putting in 9 would make it a 9x9 map
+    barrier = 9;
+
     wall[9003005] = true; // There is a wall on (3,5)
     wall[9003006] = true; // There is a wall on (3,6)
     wall[9004007] = true; // There is a wall on (4,7)
@@ -49,7 +52,7 @@ contract Map {
     
     mapping(int => bool) wall;
     mapping(int => int) spawnlocation;
-    uint barrier = 9;
+    int barrier; // The barrier, you can't go out of bounds!
 
     
 
@@ -57,15 +60,26 @@ contract Map {
 
         (int X,int Y) = this.PullVariable(spawnlocation[SpawnNumber]);
 
+        require(X <= barrier, "You idiot, you put a spawn location out of bounds");
+        require(Y <= barrier, "You idiot, you put a spawn location out of bounds");
+
         return(X,Y);
     }
 
     function checkwall(int X, int Y) external returns (bool){
+        
+        require(X <= barrier, "You idiot, you're checking for a wall out of bounds");
+        require(Y <= barrier, "You idiot, you're checking for a wall out of bounds");
 
         int corrdinate = this.WriteVariable(X, Y);
 
         if(wall[corrdinate] = true ){return true;}
         return false;
+    }
+
+    function getBarrier() external view returns (int){
+
+        return barrier;
     }
 
     // The following function was taken and edited from https://ethresear.ch/t/micro-slots-researching-how-to-store-multiple-values-in-a-single-uint256-slot/5338
