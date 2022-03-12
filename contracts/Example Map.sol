@@ -13,6 +13,36 @@ contract Map {
     // 9043934 = (43,934)
     // 9004001 = (4,1)
 
+//    How to make your own MAP!
+
+//    To create a wall, simply put in the corrdinates and "true" next to it.
+//    Corrdinates are stored in a 7 digit long number, 
+//    the first 3 digits are the Y coordinate, the next 3 are the X coordinate, and the last digit is a dummy digit so it works.
+
+    wall[9001001] = true; // There is a wall on (1,1)
+    wall[9002002] = true; // There is a wall on (2,2)
+    wall[9010007] = true; // There is a wall on (10,7)
+
+//    Same with spawn points, except you have to indicate which spawn point it is, and the number is stored in a different way, but you get it.
+//    The main game has 8 spawn points (4 for each player) the first 4 are player 1 and the second 4 are player 2.
+    
+    spawnlocation[1] = 9005005; // Player 1's spawn location is (5,5)
+    spawnlocation[2] = 9005005; // Player 1's spawn location is (5,5)
+    spawnlocation[3] = 9005005; // Player 1's spawn location is (5,5)
+    spawnlocation[4] = 9005005; // Player 1's spawn location is (5,5)
+    spawnlocation[5] = 9005005; // Player 2's spawn location is (5,5)
+    spawnlocation[6] = 9005005; // Player 2's spawn location is (5,5)
+    spawnlocation[7] = 9005005; // Player 2's spawn location is (5,5)
+    spawnlocation[8] = 9005005; // Player 2's spawn location is (5,5)
+
+
+
+
+
+
+
+
+
     // This does make the max spaces 999x999 in a map, but I don't think you'd be going that big.
     
     mapping(int => bool) wall;
