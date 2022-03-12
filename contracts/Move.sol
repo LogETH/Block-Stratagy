@@ -7,7 +7,6 @@ contract Move {
     //This contract stores movement logic, nothing else. The Map and obsticles (I can't spell) are in another contract connected to this one
 
     StatStorage getstats;
-    Map GameMap;
     Game GameContract;
 
 
@@ -16,7 +15,7 @@ contract Move {
         int256 TotalMovement;
 
         TotalMovement = this.AbsoluteValue(int(MovementY)) + this.AbsoluteValue(int(MovementX));
-        require(int(getstats.movelimit(PieceID)) <= TotalMovement);
+        require(int(getstats.mov(PieceID)) <= TotalMovement);
 
         int CurrentLocationX;
         int CurrentLocationY;
@@ -25,7 +24,9 @@ contract Move {
         CurrentLocationY = MovementY + CurrentLocationY;
         CurrentLocationX = MovementX + CurrentLocationX;
 
-        GameMap.checkwall(MapAddress, CurrentLocationX, CurrentLocationY);
+        require(MapAddress.getBarrier() <= CurrentLocationX && MapAddress.getBarrier() <= CurrentLocationX);
+
+        require(MapAddress.checkwall(CurrentLocationX, CurrentLocationY) == true, "You're trying to move where a wall is, that's not possible bro");
 
         return(CurrentLocationX,CurrentLocationY);
 
@@ -67,10 +68,11 @@ interface Game{
 
 interface Map{
 
-    function checkwall(Map, int, int) external returns (bool);
+    function checkwall(int, int) external returns (bool);
+    function getBarrier() external view returns (int);
 
 }
 
 interface StatStorage{
-    function movelimit(uint256 PieceID) external returns(uint256);
+    function mov(uint256 PieceID) external returns(uint256);
 }
