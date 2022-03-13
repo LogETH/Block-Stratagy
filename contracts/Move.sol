@@ -9,13 +9,19 @@ contract Move {
     StatStorage getstats;
     Game GameContract;
 
+    function EditGameContract(Game Contract) external {
+
+        GameContract = Contract;
+    }
+
 
     function MovePiece(uint GameID, address player, uint256 PieceID, int256 MovementY, int256 MovementX, Map MapAddress) external returns(int, int) {
 
-        int256 TotalMovement;
+        require(MovementX != 69, "DEV ERROR");
 
-        TotalMovement = this.AbsoluteValue(int(MovementY)) + this.AbsoluteValue(int(MovementX));
-        require(int(getstats.mov(PieceID)) <= TotalMovement);
+        int TotalMovement;
+
+        TotalMovement = this.AbsoluteValue(MovementY) + this.AbsoluteValue(MovementX);
 
         int CurrentLocationX;
         int CurrentLocationY;
@@ -24,7 +30,7 @@ contract Move {
         CurrentLocationY = MovementY + CurrentLocationY;
         CurrentLocationX = MovementX + CurrentLocationX;
 
-        require(MapAddress.getBarrier() <= CurrentLocationX && MapAddress.getBarrier() <= CurrentLocationX);
+        require(MapAddress.getBarrier() >= CurrentLocationX && MapAddress.getBarrier() >= CurrentLocationX, "You can't go out of bounds!");
 
         require(MapAddress.checkwall(CurrentLocationX, CurrentLocationY) == true, "You're trying to move where a wall is, that's not possible bro");
 
@@ -54,7 +60,7 @@ contract Move {
     function AbsoluteValue(int Value) external pure returns (int){
 
         if(Value < 0){
-            Value = 0-Value;
+            Value = -1 * Value;
         }
 
         return Value;
@@ -64,6 +70,7 @@ contract Move {
 interface Game{
 
     function getlocation(uint GameID, address Player, uint PieceID) external view returns (int, int);
+    
 }
 
 interface Map{
@@ -74,5 +81,5 @@ interface Map{
 }
 
 interface StatStorage{
-    function mov(uint256 PieceID) external returns(uint256);
+    function mov(uint256 PieceID) external view returns(uint256);
 }
