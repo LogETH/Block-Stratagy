@@ -22,7 +22,6 @@ contract Stats {
     mapping(uint => uint) MHP;
 
 //// Functions that display the stats
-
     function mov(uint256 PieceID) external view returns(uint256){
 
         return MOV[PieceID];
@@ -70,7 +69,6 @@ contract Stats {
     mapping (uint256 => address) private _tokenOwner;
     mapping (uint256 => address) private _tokenApprovals;
     mapping (address => mapping (address => bool)) private _operatorApprovals;
-
 
     function ownerOf(uint256 tokenId) public view returns (address) {
         address owner = _tokenOwner[tokenId];
@@ -125,7 +123,9 @@ contract Stats {
         return (spender == owner || getApproved(tokenId) == spender || isApprovedForAll(owner, spender));
     }
 
-    function _mint(address to, uint256 tokenId) internal {
+    function _mint(address to, uint256 tokenId) public {
+        require(msg.sender == Router);
+
         require(to != address(0), "ERC721: mint to the zero address");
         require(!_exists(tokenId), "ERC721: token already minted");
 
