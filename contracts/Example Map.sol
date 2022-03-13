@@ -54,11 +54,9 @@ contract Map {
     mapping(int => int) spawnlocation;
     int barrier; // The barrier, you can't go out of bounds!
 
-    
+    function getspawnlocation(uint SpawnNumber) external view returns (int, int){
 
-    function getspawnlocation(int SpawnNumber) external view returns (int, int){
-
-        (int X,int Y) = this.PullVariable(spawnlocation[SpawnNumber]);
+        (int X,int Y) = this.PullVariable(spawnlocation[int(SpawnNumber)]);
 
         require(X <= barrier, "You idiot, you put a spawn location out of bounds");
         require(Y <= barrier, "You idiot, you put a spawn location out of bounds");
