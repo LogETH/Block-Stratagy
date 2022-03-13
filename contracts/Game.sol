@@ -19,6 +19,16 @@ contract GameLogic {
         move = Movement(0x41822ac81E89A8E6b022DBec048AC886dAF78307);
     }
 
+    function ChangeMovementContract(Movement Edit) public {
+
+        move = Edit;
+    }
+
+    function ChangeCombatContract(CombatContract Edit) public {
+
+        combat = Edit;
+    }
+
 
 ////Nested mappings are bruh, like, very bruh
 
